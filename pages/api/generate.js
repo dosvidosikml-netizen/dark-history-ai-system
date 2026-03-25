@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
             {
               parts: [
                 {
-                  text: `Напиши короткий мощный сценарий для YouTube Shorts на тему: ${prompt}`,
+                  text: `Write a dark, viral YouTube Shorts script with a strong hook, tension, and twist. Topic: ${prompt}`,
                 },
               ],
             },
@@ -39,16 +39,17 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       return res.status(response.status).json({
-        error: data?.error?.message || "Gemini API request failed",
+        error: data?.error?.message || "Gemini API error",
         raw: data,
       });
     }
 
-    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const result =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!result) {
       return res.status(500).json({
-        error: "Gemini returned empty result",
+        error: "Empty response from Gemini",
         raw: data,
       });
     }
@@ -56,7 +57,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ result });
   } catch (error) {
     return res.status(500).json({
-      error: error?.message || "Unexpected server error",
+      error: error.message || "Server error",
     });
   }
 }
