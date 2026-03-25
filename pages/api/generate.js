@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-8b:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
             {
               parts: [
                 {
-                  text: `Write a dark viral YouTube Shorts script with a powerful hook and twist. Topic: ${prompt}`,
+                  text: `Write a dark viral YouTube Shorts script with a strong hook and twist. Topic: ${prompt}`,
                 },
               ],
             },
@@ -40,7 +40,6 @@ export default async function handler(req, res) {
     if (!response.ok) {
       return res.status(500).json({
         error: data?.error?.message || "Gemini error",
-        raw: data,
       });
     }
 
