@@ -11,11 +11,11 @@ export default async function handler(req, res) {
     }
 
     if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ error: "GEMINI_API_KEY is missing" });
+      return res.status(500).json({ error: "No API key" });
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-001:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
             {
               parts: [
                 {
-                  text: `Write a dark, viral YouTube Shorts script with a strong hook, tension, and twist. Topic: ${prompt}`,
+                  text: `Write a dark viral YouTube Shorts script with a powerful hook and twist. Topic: ${prompt}`,
                 },
               ],
             },
@@ -38,26 +38,19 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({
-        error: data?.error?.message || "Gemini API error",
+      return res.status(500).json({
+        error: data?.error?.message || "Gemini error",
         raw: data,
       });
     }
 
     const result =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!result) {
-      return res.status(500).json({
-        error: "Empty response from Gemini",
-        raw: data,
-      });
-    }
+      data?.candidates?.[0]?.content?.parts?.[0]?.text || "No result";
 
     return res.status(200).json({ result });
   } catch (error) {
     return res.status(500).json({
-      error: error.message || "Server error",
+      error: error.message,
     });
   }
 }
