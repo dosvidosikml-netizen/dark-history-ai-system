@@ -5,28 +5,26 @@ export default async function handler(req, res) {
 
   try {
     const { prompt } = req.body || {};
-
     if (!prompt) {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
       return res.status(500).json({ error: "No API key" });
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [
             {
               parts: [
                 {
-                  text: `Напиши вирусный сценарий для YouTube Shorts (до 60 сек) с сильным хуком и финалом. Тема: ${prompt}`,
+                  text: `Напиши короткий вирусный сценарий для YouTube Shorts (до 60 сек) с сильным хуком и твистом. Тема: ${prompt}`,
                 },
               ],
             },
@@ -39,7 +37,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       return res.status(500).json({
-        error: data?.error?.message || "Gemini error",
+        error: data?.error?.message || "Gemini API error",
       });
     }
 
@@ -47,10 +45,7 @@ export default async function handler(req, res) {
       data?.candidates?.[0]?.content?.parts?.[0]?.text || "No result";
 
     return res.status(200).json({ result });
-
-  } catch (error) {
-    return res.status(500).json({
-      error: error.message,
-    });
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
   }
 }
